@@ -9,7 +9,7 @@ function App() {
           <div id="logo"></div>
         </div>
       </header>
-      <div id="colors">
+      {/* <div id="colors">
         <div className="size-4 bg-primary-content"></div>
         <div className="size-4 bg-primary"></div>
         <div>---</div>
@@ -39,7 +39,7 @@ function App() {
         <div className="size-4 bg-error-content"></div>
         <div className="size-4 bg-error"></div>
         
-      </div>
+      </div> */}
     </>
   );
 }
