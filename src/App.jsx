@@ -1,45 +1,28 @@
 import './App.css';
 import Header from './components/Header';
+import { Route, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { AuthProvider } from './components/Authentication.jsx';
+import Auth from './routes/Auth.jsx';
+import Home from './components/Home.jsx';
+import Footer from './components/Footer.jsx';
+import Product from './routes/Product.jsx';
+import Blog from './routes/Blog.jsx';
+
 function App() {
+  let { pathname } = useLocation();
   return (
     <>
-      <Header />
-      <header>
-        <div id="menu">
-          <div id="logo"></div>
-        </div>
-      </header>
-      {/* <div id="colors">
-        <div className="size-4 bg-primary-content"></div>
-        <div className="size-4 bg-primary"></div>
-        <div>---</div>
-        <div className="size-4 bg-secondary-content"></div>
-        <div className="size-4 bg-secondary"></div>
-        <div>---</div>
-        <div className="size-4 bg-accent-content"></div>
-        <div className="size-4 bg-accent"></div>
-        <div>---</div>
-        <div className="size-4 bg-neutral-content"></div>
-        <div className="size-4 bg-neutral"></div>
-        <div>---</div>
-        <div className="size-4 bg-base-content"></div>
-        <div className="size-4 bg-base-100"></div>
-        <div className="size-4 bg-base-200"></div>
-        <div className="size-4 bg-base-300"></div>
-        <div>---</div>
-        <div className="size-4 bg-info-content"></div>
-        <div className="size-4 bg-info"></div>
-        <div>---</div>
-        <div className="size-4 bg-success-content"></div>
-        <div className="size-4 bg-success"></div>
-        <div>---</div>
-        <div className="size-4 bg-warning-content"></div>
-        <div className="size-4 bg-warning"></div>
-        <div>---</div>
-        <div className="size-4 bg-error-content"></div>
-        <div className="size-4 bg-error"></div>
-        
-      </div> */}
+      <AuthProvider>
+        {pathname !== '/auth' && <Header />}
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/product/:product_slug" element={<Product />} />
+        </Routes>
+        {pathname !== '/auth' && <Footer />}
+      </AuthProvider>
     </>
   );
 }

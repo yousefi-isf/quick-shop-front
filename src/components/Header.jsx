@@ -1,17 +1,31 @@
 import logo from '@images/logo.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
+import { useAuth } from './Authentication';
+import pn from 'persian-number';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import { HeartIcon } from '@heroicons/react/24/outline';
+import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
+import axios from 'axios';
+import _ from 'lodash';
+
+const API_VITE_GET_USER_PROFILE = import.meta.env.VITE_GET_USER_PROFILE;
 
 export default function Header() {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
+
   return (
     <>
-      {loading && (
-        <progress class="progress h-[3px] progress-accent"></progress>
-      )}
-      <header className="flex items-center flex-row justify-between m-auto w-[90%] pt-4">
+      {/* {loading && (
+        <progress className="progress h-[3px] progress-accent"></progress>
+      )} */}
+      <header className="flex items-center flex-row justify-between m-auto w-[95%] py-5 border-b-2">
         <div id="logo">
-          <img className="w-48" src={logo} alt="" />
+          <Link to={'/'}>
+            <img className="w-48" src={logo} alt="" />
+          </Link>
         </div>
         <div id="search">
           <label className="input bg-base-200 input-bordered flex items-center gap-2">
@@ -34,15 +48,115 @@ export default function Header() {
             </svg>
           </label>
         </div>
-        <div id="accont-card" className="flex items-center gap-5">
-          <button className="btn btn-ghost border-base-300 text-accent-content hover:bg-accent hover:text-accent-content font-normal">
-            ورود | ثبت نام
-          </button>
-          <div id="card">
+        <div id="accont-card" className="flex items-center">
+          {!token ? (
+            <Link to={'/auth'}>
+              <button className="btn btn-ghost border-base-300 text-accent-content hover:bg-accent hover:text-accent-content font-normal">
+                ورود | ثبت نام
+              </button>
+            </Link>
+          ) : (
+            <Account />
+          )}
+          <div className="divider divider-horizontal"></div>
+
+          <Link id="card">
             <ShoppingBagIcon className="size-7" />
-          </div>
+          </Link>
         </div>
       </header>
+    </>
+  );
+}
+export function Account() {
+  const [loading, setLoading] = useState(false);
+  const [uname, setUname] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const { token, logout } = useAuth();
+  const [err, setErr] = useState('');
+  console.log(avatar);
+  async function getUserProfile() {
+    setLoading(true);
+    try {
+      const res = await axios.get(API_VITE_GET_USER_PROFILE, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 1000,
+      });
+      console.log(res.data);
+      setUname(res.data.data.name);
+      setAvatar(res.data.data.avatar);
+      setErr('');
+      setLoading(false);
+      console.log(res.data.data);
+    } catch (error) {
+      console.log(error, error.code);
+      // if (error.response.status == 401) {
+      //   logout();
+      // }
+      if (error.code == 'ERR_NETWORK') {
+        setErr('خطا در برقراری ارتباط');
+      }
+      if (error.code == 'ECONNABORTED') {
+        setErr('خطا در برقراری ارتباط');
+      }
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (token) {
+      getUserProfile();
+      console.log('token useeffect');
+    }
+  }, [token]);
+
+  function handleClick() {
+    logout();
+  }
+
+  return (
+    <>
+      {/* <span className="loading loading-spinner loading-md"></span> */}
+      <div className="dropdown dropdown-hover gap-10">
+        <div tabIndex={0} role="button" className="btn m-1 dropdown-space">
+          {loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            ''
+          )}
+          {!_.isEmpty(err) ? (
+            <div className="badge badge-error p-2 font-light">{err}</div>
+          ) : (
+            <>
+              <h3 className="font-bold">{pn.convertEnToPe(uname)}</h3>
+              <div className="badge p-2 font-light">حساب‌کاربری</div>
+            </>
+          )}
+        </div>
+        <ul
+          tabIndex={1}
+          className="dropdown-content menu bg-white rounded-box z-[1] w-auto p-2"
+        >
+          <li>
+            <Link className="gap-1 hover:text-info">
+              <InformationCircleIcon className="size-5" />
+              حساب کابری
+            </Link>
+          </li>
+          <li>
+            <Link className="gap-1 ">
+              <HeartIcon className="size-5 " />
+              مورد علاقه
+            </Link>
+          </li>
+          <li>
+            <Link className="gap-1 hover:text-error" onClick={handleClick}>
+              <ArrowRightCircleIcon className="size-5" />
+              خروج
+            </Link>
+          </li>
+        </ul>
+      </div>
     </>
   );
 }

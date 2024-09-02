@@ -33,12 +33,11 @@
     font-weight: 300;
   }
 }
-/* input:focus {
-  outline: none !important;
-  border: none !important;
+.menu li > *:not(ul):not(.menu-title):not(details):active {
+  @apply bg-inherit text-inherit;
 }
-:focus, 
-:focus-visible {
-  @apply focus-visible:border-0
-   focus-visible:ring-0 focus:outline-none focus:border-none;
+/* .dropdown-space::after {
+  display:block;
+  content:'';
+  height:20px;
 } */
