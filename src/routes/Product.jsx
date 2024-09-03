@@ -8,7 +8,7 @@ import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/solid';
 import './Product.css';
 
 export default function Product() {
-  let { product_slug } = useParams();
+  let { product_name , product_slug } = useParams();
   return (
     <>
       <section className="grid grid-cols-9 p-10 gap-10">

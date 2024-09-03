@@ -3,8 +3,14 @@ import sliderUrl from '@images/slider-01.jpg';
 import slider2Url from '@images/slider-02.jpg';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
-import helpers from '../utils/helpers';
-import Footer from './Footer';
+import ProductBox from './ProductBox';
+import { useEffect, useState } from 'react';
+import _ from 'lodash';
+import axios from 'axios';
+
+// apis
+const GET_PRODUCTS = import.meta.env.VITE_GET_PRODUCTS;
+
 export function Slider() {
   return (
     <div className="carousel carousel-center">
@@ -33,123 +39,79 @@ export function Slider() {
     </div>
   );
 }
-export function Prods() {
+
+export function ProductCarousel({ products, loading }) {
+  const [prCount, setPrCount] = useState(5);
+  console.log(products, loading);
   return (
     <>
-      
       <div className="carousel carousel-center bg-white rounded-box w-full gap-5">
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
-        <div className="carousel-item card bg-base-100 w-80">
-          <figure>
-            <img
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-            />
-          </figure>
-          <div className="card-body pt-5 p-0 gap-5">
-            <h2 className="card-title text-sm font-normal">
-              ساعت هوشمند هایلو مدل Solar Pro
-            </h2>
-            <p className="text-end font-bold">
-              {helpers.toCurrency(31000000)} تومان
-            </p>
-          </div>
-        </div>
+        {loading &&
+          Array.from({ length: prCount }).map(() => (
+            <div className="flex w-80 flex-col gap-5">
+              <div className="skeleton h-48 w-full"></div>
+              <div className="skeleton h-4 w-56"></div>
+              <div className="skeleton h-4 w-28 self-end"></div>
+            </div>
+          ))}
+        {products?.map((pr) => (
+          <ProductBox
+            prName={pr.name}
+            prPrice={pr.price}
+            prPhoto={pr.photo.path}
+            prSlug={`${pr.slug}/${_.kebabCase(pr.name)}`}
+          />
+        ))}
       </div>
     </>
   );
 }
 export default function Home() {
-  const { token } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [offerProducsts, setOfferProducsts] = useState([]);
+  const [discountProducts, setDiscountProducts] = useState([]);
+  console.log(offerProducsts, discountProducts);
+  const { host } = useAuth();
+
+  async function getOfferProducts() {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${host}/${GET_PRODUCTS}?limit=10&page=1`);
+      setLoading(false);
+      setOfferProducsts(res.data.data.docs);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
+  async function getDiscountProducts() {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${host}/${GET_PRODUCTS}?limit=10&page=2`);
+      setLoading(false);
+      setDiscountProducts(res.data.data.docs);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getOfferProducts();
+    getDiscountProducts();
+  }, []);
+
   return (
     <main className="">
       <Slider />
       <div className="title flex flex-col gap-7 w-[95%] m-auto pt-10 pb-10">
         <h3 className="text-[20px] font-bold">پیشنهاد ویژه کوئیک شاپ</h3>
-        <Prods />
+
+        <ProductCarousel products={offerProducsts} loading={loading} />
       </div>
       <div className="title flex flex-col gap-7 w-[95%] m-auto pt-10 pb-10">
         <h3 className="text-[20px] font-bold">پیشنهاد ویژه کوئیک شاپ</h3>
-        <Prods />
+        <ProductCarousel products={discountProducts} loading={loading} />
       </div>
     </main>
   );

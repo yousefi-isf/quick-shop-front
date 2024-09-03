@@ -10,7 +10,7 @@ import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import _ from 'lodash';
 
-const API_VITE_GET_USER_PROFILE = import.meta.env.VITE_GET_USER_PROFILE;
+const GET_USER_PROFILE = import.meta.env.VITE_GET_USER_PROFILE;
 
 export default function Header() {
   // const [loading, setLoading] = useState(false);
@@ -74,25 +74,21 @@ export function Account() {
   const [avatar, setAvatar] = useState('');
   const { token, logout } = useAuth();
   const [err, setErr] = useState('');
+  const { host } = useAuth();
   console.log(avatar);
   async function getUserProfile() {
     setLoading(true);
     try {
-      const res = await axios.get(API_VITE_GET_USER_PROFILE, {
+      const res = await axios.get(`${host}/${GET_USER_PROFILE}`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 1000,
       });
-      console.log(res.data);
       setUname(res.data.data.name);
       setAvatar(res.data.data.avatar);
       setErr('');
       setLoading(false);
-      console.log(res.data.data);
     } catch (error) {
-      console.log(error, error.code);
-      // if (error.response.status == 401) {
-      //   logout();
-      // }
+      console.log(error);
       if (error.code == 'ERR_NETWORK') {
         setErr('خطا در برقراری ارتباط');
       }

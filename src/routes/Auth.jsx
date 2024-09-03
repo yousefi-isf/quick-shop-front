@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/Authentication';
 import { CodeBracketIcon } from '@heroicons/react/16/solid';
 
-
 export default function Auth() {
   const [error, setError] = useState(false);
   const [ready, setReady] = useState(false);
@@ -15,7 +14,7 @@ export default function Auth() {
   const navigate = useNavigate();
 
   const { token } = useAuth();
-
+  console.log(token)
   useEffect(() => {
     if (token) {
       navigate('/');

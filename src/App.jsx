@@ -3,6 +3,7 @@ import Header from './components/Header';
 import { Route, Routes } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './components/Authentication.jsx';
+import { useAuth } from './components/Authentication.jsx';
 import Auth from './routes/Auth.jsx';
 import Home from './components/Home.jsx';
 import Footer from './components/Footer.jsx';
@@ -19,7 +20,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/product/:product_slug" element={<Product />} />
+          <Route path="/:product_slug/:product_name" element={<Product />} />
         </Routes>
         {pathname !== '/auth' && <Footer />}
       </AuthProvider>

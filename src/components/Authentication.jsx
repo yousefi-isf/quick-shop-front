@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { useNavigate } from 'react-router';
@@ -6,17 +6,25 @@ import ERRORS from '@constants/validation-errors.js';
 
 const AuthContext = createContext();
 
-const API_SEND_OTP = import.meta.env.VITE_SEND_OTP;
-const API_SUBMIT_OTP = import.meta.env.VITE_SUBMIT_OTP;
+const LOCAL_OR_REMOTE = import.meta.env.VITE_REMOTE_LOCAL;
+const LOCAL_URL = import.meta.env.VITE_LOCAL_API_URL;
+const REMOTE_URL = import.meta.env.VITE_REMOTE_API_URL;
+
+// apis
+const SEND_OTP = import.meta.env.VITE_SEND_OTP;
+const SUBMIT_OTP = import.meta.env.VITE_SUBMIT_OTP;
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('userToken'));
+  const [host, setHost] = useState(
+    LOCAL_OR_REMOTE == 'false' ? LOCAL_URL : REMOTE_URL,
+  );
 
   const navigate = useNavigate();
 
   const sendOtp = async (mobile) => {
     try {
-      const res = await axios.post(API_SEND_OTP, {
+      const res = await axios.post(`${host}/${SEND_OTP}`, {
         mobile: mobile,
       });
       const { code } = res.data.data;
@@ -27,9 +35,9 @@ export function AuthProvider({ children }) {
   };
 
   const submitOtp = async (code, mobile) => {
-    console.log(code, mobile, API_SUBMIT_OTP);
+    console.log(code, mobile);
     try {
-      const res = await axios.post(API_SUBMIT_OTP, {
+      const res = await axios.post(`${host}/${SUBMIT_OTP}`, {
         mobile: mobile,
         code: code,
       });
@@ -62,6 +70,7 @@ export function AuthProvider({ children }) {
         submitOtp,
         login,
         logout,
+        host,
       }}
     >
       {children}
