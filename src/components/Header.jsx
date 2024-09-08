@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from './Authentication';
 import pn from 'persian-number';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
-import { HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import _ from 'lodash';
@@ -18,10 +18,7 @@ export default function Header() {
 
   return (
     <>
-      {/* {loading && (
-        <progress className="progress h-[3px] progress-accent"></progress>
-      )} */}
-      <header className="flex items-center flex-row justify-between m-auto w-[95%] py-5 border-b-2">
+      <header className="flex items-center flex-row justify-between mx-auto w-[95%] py-5 border-b-2 ">
         <div id="logo">
           <Link to={'/'}>
             <img className="w-48" src={logo} alt="" />
@@ -58,11 +55,16 @@ export default function Header() {
           ) : (
             <Account />
           )}
-          <div className="divider divider-horizontal"></div>
 
-          <Link id="card">
-            <ShoppingBagIcon className="size-7" />
-          </Link>
+          {token && (
+            <>
+              <div className="divider divider-horizontal"></div>
+
+              <Link id="card" to={'/cart'}>
+                <ShoppingBagIcon className="size-7" />
+              </Link>
+            </>
+          )}
         </div>
       </header>
     </>
@@ -81,7 +83,6 @@ export function Account() {
     try {
       const res = await axios.get(`${host}/${GET_USER_PROFILE}`, {
         headers: { Authorization: `Bearer ${token}` },
-        timeout: 1000,
       });
       setUname(res.data.data.name);
       setAvatar(res.data.data.avatar);
@@ -134,15 +135,15 @@ export function Account() {
           className="dropdown-content menu bg-white rounded-box z-[1] w-auto p-2"
         >
           <li>
-            <Link className="gap-1 hover:text-info">
+            <Link className="gap-1 hover:text-info" to={'/profile'}>
               <InformationCircleIcon className="size-5" />
               حساب کابری
             </Link>
           </li>
           <li>
-            <Link className="gap-1 ">
-              <HeartIcon className="size-5 " />
-              مورد علاقه
+            <Link className="gap-1" to={'/profile/orders'}>
+              <InboxIcon className="size-5 " />
+              سفارشات
             </Link>
           </li>
           <li>

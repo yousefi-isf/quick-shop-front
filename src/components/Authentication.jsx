@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setToken('');
     localStorage.setItem('userToken', '');
-    // navigate(0);
+    window.location.reload();
   };
 
   return (

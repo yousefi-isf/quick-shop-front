@@ -2,7 +2,7 @@ import logoWhite from '@images/logo-white.png';
 export default function Footer() {
   return (
     <>
-      <footer className="footer bg-base-100 text-base-content p-10">
+      {/* <footer className="footer bg-base-100 text-base-content p-10 ">
         <nav>
           <h6 className="footer-title font-black text-[18px] text-black">
             با کوئیک شاپ
@@ -29,7 +29,7 @@ export default function Footer() {
           <a className="link link-hover">قیمت تلویزیون</a>
           <a className="link link-hover">قیمت کنسول بازی</a>
         </nav>
-      </footer>
+      </footer> */}
       <footer className="footer bg-accent text-accent-content border-base-300 border-t px-10 py-4">
         <aside className="grid-flow-col items-center">
           <img src={logoWhite} alt="logo" className="w-48" />

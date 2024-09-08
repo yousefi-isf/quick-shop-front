@@ -9,7 +9,12 @@ import Home from './components/Home.jsx';
 import Footer from './components/Footer.jsx';
 import Product from './routes/Product.jsx';
 import Blog from './routes/Blog.jsx';
-
+import Cart from './routes/Cart';
+import Shipping from './routes/Shipping.jsx';
+import Profile from './routes/Profile.jsx';
+import Orders from './routes/Orders.jsx';
+import Coins from './routes/Coins.jsx';
+import Info from './routes/Info.jsx';
 function App() {
   let { pathname } = useLocation();
   return (
@@ -20,6 +25,13 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Home />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<Profile />}>
+            <Route path="orders" element={<Orders />} />
+            <Route path="coins" element={<Coins />} />
+            <Route path="info" element={<Info />} />
+          </Route>
+          <Route path="/shipping" element={<Shipping />} />
           <Route path="/:product_slug/:product_name" element={<Product />} />
         </Routes>
         {pathname !== '/auth' && <Footer />}

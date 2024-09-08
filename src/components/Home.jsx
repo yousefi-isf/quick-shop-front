@@ -102,7 +102,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="">
+    <main className="flex-grow">
       <Slider />
       <div className="title flex flex-col gap-7 w-[95%] m-auto pt-10 pb-10">
         <h3 className="text-[20px] font-bold">پیشنهاد ویژه کوئیک شاپ</h3>
@@ -110,7 +110,7 @@ export default function Home() {
         <ProductCarousel products={offerProducsts} loading={loading} />
       </div>
       <div className="title flex flex-col gap-7 w-[95%] m-auto pt-10 pb-10">
-        <h3 className="text-[20px] font-bold">پیشنهاد ویژه کوئیک شاپ</h3>
+        <h3 className="text-[20px] font-bold"> تخفیف دارهای کوئیک شاپ</h3>
         <ProductCarousel products={discountProducts} loading={loading} />
       </div>
     </main>
