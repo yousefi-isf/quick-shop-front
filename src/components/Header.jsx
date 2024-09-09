@@ -88,6 +88,7 @@ export function Account() {
       setAvatar(res.data.data.avatar);
       setErr('');
       setLoading(false);
+      console.log(res.data.data.address);
     } catch (error) {
       console.log(error);
       if (error.code == 'ERR_NETWORK') {

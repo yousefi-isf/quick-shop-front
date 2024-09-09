@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
 export default function Cart() {
   const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(false);
   const [cart, setCart] = useState();
   const { token, host } = useAuth();
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ export default function Cart() {
       const res = await axios.get(`${host}/${GET_USER_CART}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res.data.data) {
+        setErr(true);
+      }
       console.log(res.data.data);
       setCart(res.data.data);
     } catch (error) {
@@ -40,13 +44,22 @@ export default function Cart() {
       </div>
     );
   }
+  if (err) {
+    return (
+      <div className="flex-grow h-screen flex flex-col justify-center items-center">
+        هیچ کالایی در سبد خرید شما نیست
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="flex-grow p-10 grid grid-cols-9 gap-10 transition-all">
         <div className="right col-span-5 flex flex-col gap-5">
           {cart.items.map((item) => (
-            <Link to={`/${item.product.slug}/${_.kebabCase(item.product.name)}`}>
+            <Link
+              to={`/${item.product.slug}/${_.kebabCase(item.product.name)}`}
+            >
               <div className="pr-box w-full bg-base-200 p3 p-5 rounded-lg flex items-center justify-between gap-3">
                 <img src={item.product.photo.path} className="w-1/3" />
                 {item.quantity}
@@ -73,9 +86,9 @@ export default function Cart() {
               </h5>
             </div>
             <div id="add-to-card p-5" className="w-full">
-              <button className="btn btn-accent text-accent-content w-full">
+              <Link className="btn btn-accent text-accent-content w-full" to={"/shipping"}>
                 ادامه خرید
-              </button>
+              </Link>
             </div>
           </div>
         </div>

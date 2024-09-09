@@ -5,43 +5,58 @@ import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import { CircleStackIcon } from '@heroicons/react/24/solid';
 import { QueueListIcon } from '@heroicons/react/24/solid';
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/solid';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { MinusIcon } from '@heroicons/react/24/solid';
 import './Product.css';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../components/Authentication';
 import _ from 'lodash';
-
+import pn from 'persian-number';
+// import http
 const GET_PRODUCT_DETAILS = import.meta.env.VITE_GET_PRODUCT_DETAILS;
 const ADD_TO_CART = import.meta.env.VITE_ADD_TO_CART;
-
-export default function Product() {
-  let { product_name, product_slug } = useParams();
+const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
+const DELETE_ITEM_FROM_CART = import.meta.env.VITE_DELETE_ITEM_FROM_CART;
+export function AddToCart({ product_slug }) {
   const { host, token } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [product, setProduct] = useState();
-  const [inCart, setInCart] = useState(false);
-  console.log(product);
-
-  async function get_product_details() {
-    setLoading(true);
-    try {
-      const _product = await axios.get(
-        `${host}/${GET_PRODUCT_DETAILS}/${product_slug}`,
-      );
-      setProduct(_product.data.data);
+  const [isAddToCart, setIsAddToCart] = useState(false);
+  const [cartChanged, setCartChanged] = useState(false);
+  const [cartNum, setCartNum] = useState(0);
+  async function get_user_cart() {
+    if (!token) {
       setLoading(false);
+    }
+    try {
+      // const res = await fetch(`${host}/${GET_USER_CART}`, {
+      //   headers: { "Authorization": `Bearer ${token}` },
+      //   // ...
+      // });
+
+      const res = await axios.get(`${host}/${GET_USER_CART}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.data.data) {
+        setIsAddToCart(false);
+        return;
+      }
+      for (const pr of res.data.data.items) {
+        if (pr.product.slug == product_slug) {
+          setIsAddToCart(true);
+          setCartNum(pr.quantity);
+        }
+      }
+
+      console.log(res.data.data);
     } catch (error) {
       console.log(error);
+    } finally {
       setLoading(false);
     }
   }
-
-  useEffect(() => {
-    get_product_details();
-  }, []);
-
   async function addToCart() {
     if (!token) navigate('/auth');
     try {
@@ -55,16 +70,100 @@ export default function Product() {
           'Content-Type': 'application/json',
         },
       });
+      setCartChanged((prev) => !prev);
       console.log(res);
     } catch (error) {
       console.log(error);
     }
   }
+  async function removeFromCart() {
+    try {
+      const body = {
+        product_slug,
+      };
+      const res = await axios.put(`${host}/${DELETE_ITEM_FROM_CART}`, body, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setCartChanged((prev) => !prev);
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(() => {
+    get_user_cart();
+  }, [cartChanged]);
+
+  if (loading) {
+    return <div className="skeleton w-full h-10 rounded-md"></div>;
+  }
+
+  return (
+    <div id="add-to-card p-5" className="w-full flex flex-col justify-center">
+      {!isAddToCart ? (
+        <button
+          className="btn btn-accent text-accent-content w-full"
+          onClick={addToCart}
+        >
+          افزودن به سبد خرید
+        </button>
+      ) : (
+        <>
+          <div className="self-center badge badge-info p-3">
+            موجود در سبد خرید
+          </div>
+          <div className="text-accent-content w-full flex justify-between gap-2 items-center">
+            <button className="btn btn-circle" onClick={addToCart}>
+              <PlusIcon className="size-4" />
+            </button>
+            {pn.convertEnToPe(cartNum)}
+            <button className="btn btn-circle" onClick={removeFromCart}>
+              <MinusIcon className="size-4" />
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function Product() {
+  let { product_name, product_slug } = useParams();
+  const { host, token } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState();
+
+  console.log(product);
+
+  async function get_product_details() {
+    setLoading(true);
+    try {
+      const _product = await axios.get(
+        `${host}/${GET_PRODUCT_DETAILS}/${product_slug}`,
+      );
+      setProduct(_product.data.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    get_product_details();
+  }, []);
+
+  if (loading) {
+    return (
+      <progress className="progress h-[5px] progress-accent absolute top-0"></progress>
+    );
+  }
   return (
     <>
-      {loading && (
-        <progress className="progress h-[5px] progress-accent absolute top-0"></progress>
-      )}
       {product && (
         <section className="flex-grow grid grid-cols-9 p-10 gap-10">
           <div id="right" className="flex flex-col gap-10 col-span-7">
@@ -182,14 +281,7 @@ export default function Product() {
                   {helpers.toCurrency(product.price)} تومان
                 </h5>
               </div>
-              <div id="add-to-card p-5" className="w-full">
-                <button
-                  className="btn btn-accent text-accent-content w-full"
-                  onClick={addToCart}
-                >
-                  افزودن به سبد خرید
-                </button>
-              </div>
+              <AddToCart product_slug={product_slug} />
             </div>
           </aside>
         </section>

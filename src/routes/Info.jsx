@@ -9,6 +9,10 @@ export default function Info() {
         شماره همراه
         <input type="text" className="grow" placeholder="شماره همراه" />
       </label>
+      <label className="input input-bordered flex items-center gap-2 w-1/2">
+        کد پستی
+        <input type="text" className="grow" placeholder="کد پستی" />
+      </label>
       <label className="form-control w-1/2">
         <div className="label">
           <span className="label-text text-[16px]">آدرس</span>

@@ -15,6 +15,8 @@ import Profile from './routes/Profile.jsx';
 import Orders from './routes/Orders.jsx';
 import Coins from './routes/Coins.jsx';
 import Info from './routes/Info.jsx';
+import OrderDetails from './routes/OrderDetails.jsx';
+import DefaultOrders from './routes/DefaultOrders.jsx';
 function App() {
   let { pathname } = useLocation();
   return (
@@ -27,7 +29,10 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />}>
-            <Route path="orders" element={<Orders />} />
+            <Route path="orders" element={<Orders />}>
+              {/* <Route index element={<DefaultOrders />} /> */}
+              <Route path=":order_number" element={<OrderDetails />}></Route>
+            </Route>
             <Route path="coins" element={<Coins />} />
             <Route path="info" element={<Info />} />
           </Route>
