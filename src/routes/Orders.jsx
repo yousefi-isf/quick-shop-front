@@ -12,6 +12,7 @@ export default function Orders() {
   const { host, token } = useAuth();
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
+  console.log(orders);
   async function get_user_factors() {
     try {
       const res = await axios.get(`${host}/${GET_USER_FACTORS}`, {
@@ -47,9 +48,13 @@ export default function Orders() {
                     سفارش شماره{' '}
                     <span className="font-bold">{order.order_number}</span>
                   </div>
-                  <p className="text-accent font-bold">
-                    در حال آماده سازی سفارش
-                  </p>
+                  {order.status == 'PREPARING' ? (
+                    <p className="text-accent font-bold">
+                      در حال آماده سازی سفارش
+                    </p>
+                  ) : (
+                    <p className="text-info font-bold">منتظر دریافت</p>
+                  )}
                 </div>
                 <div
                   id="order-total-price"
@@ -65,7 +70,7 @@ export default function Orders() {
                     تومان
                   </div>
                 </div>
-                <div className="product-prev">
+                <div className="product-prev flex flex-col gap-3">
                   {order.items.map((pr) => (
                     <Link
                       to={`/${pr.product.slug}/${pr.product.name}`}

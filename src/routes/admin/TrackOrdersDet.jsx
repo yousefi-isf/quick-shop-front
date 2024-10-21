@@ -1,26 +1,30 @@
 import { useParams } from 'react-router-dom';
-import helpers from '../utils/helpers';
+import helpers from '../../utils/helpers';
 import { Link } from 'react-router-dom';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../components/Authentication';
+import { useAuth } from '../../components/Authentication';
 import _ from 'lodash';
 import { convertEnToPe } from 'persian-number';
+import { useOutletContext } from 'react-router-dom';
+const GET_FACTOR_ADMIN = import.meta.env.VITE_GET_FACTOR_ADMIN;
 
-const GET_FACTOR = import.meta.env.VITE_GET_FACTOR;
-
-export default function OrderDetails() {
+export default function TrackOrdersDet() {
   const { token, host } = useAuth();
+  const [handleSendFactor , orderChanged , setOrderChanged] = useOutletContext();
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState({});
   let { order_number } = useParams();
-  console.log(order.status);
+  console.log(order_number, order);
   async function get_factor() {
     try {
-      const res = await axios.get(`${host}/${GET_FACTOR}/${order_number}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        `${host}/${GET_FACTOR_ADMIN}/${order_number}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setOrder(res.data.data);
     } catch (error) {
       console.log(error);
@@ -30,7 +34,7 @@ export default function OrderDetails() {
   }
   useEffect(() => {
     get_factor();
-  }, []);
+  }, [orderChanged]);
 
   if (loading) {
     return <div className="skeleton w-full h-48"></div>;
@@ -51,9 +55,9 @@ export default function OrderDetails() {
         <div id="order-title" className=" flex justify-between">
           سفارش {order.order_number}
           {order.status == 'PREPARING' ? (
-            <p className="text-accent font-bold">در حال آماده سازی سفارش</p>
+            <p className="text-accent">در حال آماده سازی سفارش</p>
           ) : (
-            <p className="text-info font-bold">منتظر دریافت</p>
+            <p className="text-primary">ارسال شده</p>
           )}
         </div>
         <div id="items-container" className="flex flex-col gap-5">
@@ -76,6 +80,15 @@ export default function OrderDetails() {
             </Link>
           ))}
         </div>
+        <div id="orderer" className="flex flex-col gap-5">
+          <div id="inof-title" className="text-lg">
+            سفارش دهنده :
+          </div>
+          <Link className="info-container bg-base-200 p-5 rounded-lg flex gap-3 items-center">
+            <img src={order.user_id.avatar.path} alt="" className="w-14" />
+            <div className="font-bold">{order.user_id.name}</div>
+          </Link>
+        </div>
         <div id="order-info" className="flex flex-col gap-5">
           <div id="inof-title" className="text-lg">
             مشخصات سفارش :
@@ -95,15 +108,18 @@ export default function OrderDetails() {
             </div>
           </div>
         </div>
-        <div id="time-to-get" className="flex gap-5">
-          <div className="title">زمان تقریبی رسیدن بسته به دست شما :</div>
-          <div className="time">
-            {new Intl.DateTimeFormat('fa-IR', {
-              dateStyle: 'full',
-            }).format(new Date(order.time_to_get))}
+        {order.status == 'PREPARING' && (
+          <div className="send w-1/3 self-end">
+            <button
+              className="w-full btn btn-primary"
+              onClick={() => handleSendFactor(order_number)}
+            >
+              ارسال سفارش
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </>
+    // <>sdlfkjdfl</>
   );
 }

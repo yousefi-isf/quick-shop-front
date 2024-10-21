@@ -1,9 +1,10 @@
 import logo from '@images/logo.png';
 import { useEffect, useState } from 'react';
 import { ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { ShoppingBagIcon as ShoppingBagIconSolid } from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
 import { useAuth } from './Authentication';
-import pn from 'persian-number';
+import pn, { convertEnToPe } from 'persian-number';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { HeartIcon, InboxIcon } from '@heroicons/react/24/outline';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
@@ -11,19 +12,20 @@ import axios from 'axios';
 import _ from 'lodash';
 
 const GET_USER_PROFILE = import.meta.env.VITE_GET_USER_PROFILE;
-
+const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
 export default function Header() {
   // const [loading, setLoading] = useState(false);
   const { token } = useAuth();
 
   return (
     <>
-      <header className="flex items-center flex-row justify-between mx-auto w-[95%] py-5 border-b-2 ">
+      <header className="flex items-center flex-row justify-between w-full max-h-max py-5 px-10 border-b-2 sticky top-0 z-50 bg-white">
         <div id="logo">
           <Link to={'/'}>
             <img className="w-48" src={logo} alt="" />
           </Link>
         </div>
+
         <div id="search">
           <label className="input bg-base-200 input-bordered flex items-center gap-2">
             <input
@@ -55,16 +57,6 @@ export default function Header() {
           ) : (
             <Account />
           )}
-
-          {token && (
-            <>
-              <div className="divider divider-horizontal"></div>
-
-              <Link id="card" to={'/cart'}>
-                <ShoppingBagIcon className="size-7" />
-              </Link>
-            </>
-          )}
         </div>
       </header>
     </>
@@ -73,11 +65,21 @@ export default function Header() {
 export function Account() {
   const [loading, setLoading] = useState(false);
   const [uname, setUname] = useState('');
-  const [avatar, setAvatar] = useState('');
+  const [cartNum, setCartNum] = useState();
+  const [role, setRole] = useState('guest');
   const { token, logout } = useAuth();
   const [err, setErr] = useState('');
-  const { host } = useAuth();
-  console.log(avatar);
+  const { host, cartChanged } = useAuth();
+  async function get_cart_badge() {
+    try {
+      const cart = await axios.get(`${host}/${GET_USER_CART}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCartNum(cart.data.data?.items?.length ?? 0);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async function getUserProfile() {
     setLoading(true);
     try {
@@ -85,7 +87,7 @@ export function Account() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUname(res.data.data.name);
-      setAvatar(res.data.data.avatar);
+      setRole(res.data.data.role.name);
       setErr('');
       setLoading(false);
       console.log(res.data.data.address);
@@ -104,9 +106,12 @@ export function Account() {
   useEffect(() => {
     if (token) {
       getUserProfile();
-      console.log('token useeffect');
     }
   }, [token]);
+
+  useEffect(() => {
+    get_cart_badge();
+  }, [cartChanged]);
 
   function handleClick() {
     logout();
@@ -127,7 +132,11 @@ export function Account() {
           ) : (
             <>
               <h3 className="font-bold">{pn.convertEnToPe(uname)}</h3>
-              <div className="badge p-2 font-light">حساب‌کاربری</div>
+              {role == 'guest' ? (
+                <div className="badge p-2 font-light">حساب‌کاربری</div>
+              ) : (
+                <div className="badge badge-info font-bold p-2 ">مدیریت</div>
+              )}
             </>
           )}
         </div>
@@ -155,6 +164,26 @@ export function Account() {
           </li>
         </ul>
       </div>
+      {token && cartNum ? (
+        <>
+          <div className="divider divider-horizontal"></div>
+
+          <Link id="card" to={'/cart'} className="flex">
+            <div className="badge badge-ghost absolute mt-5 mr-[-10px]  px-1 py-3">
+              {convertEnToPe(cartNum)}
+            </div>
+            <ShoppingBagIconSolid className="size-7" />
+          </Link>
+        </>
+      ) : (
+        <>
+          <div className="divider divider-horizontal"></div>
+
+          <Link id="card" to={'/cart'} className="flex">
+            <ShoppingBagIcon className="size-7" />
+          </Link>
+        </>
+      )}
     </>
   );
 }

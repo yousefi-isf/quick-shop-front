@@ -5,6 +5,7 @@ import helpers from '../utils/helpers';
 import axios from 'axios';
 import _ from 'lodash';
 import { Link } from 'react-router-dom';
+import noImg from '../../public/noimage.png'
 const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
 export default function Cart() {
   const [loading, setLoading] = useState(true);
@@ -61,7 +62,7 @@ export default function Cart() {
               to={`/${item.product.slug}/${_.kebabCase(item.product.name)}`}
             >
               <div className="pr-box w-full bg-base-200 p3 p-5 rounded-lg flex items-center justify-between gap-3">
-                <img src={item.product.photo.path} className="w-1/3" />
+                <img src={item.product.photo?.path ?? noImg } className="w-1/3" />
                 {item.quantity}
                 <div>{item.product.name}</div>
                 <h5 className="font-bold text-md text-center">

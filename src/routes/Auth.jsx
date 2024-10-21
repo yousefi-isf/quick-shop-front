@@ -14,7 +14,7 @@ export default function Auth() {
   const navigate = useNavigate();
 
   const { token } = useAuth();
-  console.log(token)
+  console.log(token);
   useEffect(() => {
     if (token) {
       navigate('/');
@@ -80,7 +80,7 @@ export function SubmitOtp({ error, mobile, setError, succ, setSucc }) {
     if (error) return;
     const res = await submitOtp(digits, mobile);
     if (res?.data?.accessToken) {
-      login(res.data.accessToken);
+      login(res.data.accessToken, res?.data?.expiresIn);
       setSucc(true);
       setLoading(false);
     } else {

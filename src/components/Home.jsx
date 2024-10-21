@@ -58,7 +58,7 @@ export function ProductCarousel({ products, loading }) {
           <ProductBox
             prName={pr.name}
             prPrice={pr.price}
-            prPhoto={pr.photo.path}
+            prPhoto={pr.photo?.path ?? "./noimage.png"}
             prSlug={`${pr.slug}/${_.kebabCase(pr.name)}`}
           />
         ))}

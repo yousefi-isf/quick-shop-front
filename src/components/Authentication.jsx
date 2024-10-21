@@ -19,7 +19,8 @@ export function AuthProvider({ children }) {
   const [host, setHost] = useState(
     LOCAL_OR_REMOTE == 'false' ? LOCAL_URL : REMOTE_URL,
   );
-
+  const [cartChanged, setCartChanged] = useState(false);
+  const [expire, setExpire] = useState(localStorage.getItem('expiresIn'));
   const navigate = useNavigate();
 
   const sendOtp = async (mobile) => {
@@ -51,9 +52,11 @@ export function AuthProvider({ children }) {
       }
     }
   };
-  const login = (token) => {
+  const login = (token , expiresIn) => {
     setToken(token);
     localStorage.setItem('userToken', token);
+    // setExpire(expiresIn)
+    // localStorage.setItem('expiresIn', expiresIn);
     navigate('/');
   };
   const logout = () => {
@@ -70,6 +73,8 @@ export function AuthProvider({ children }) {
         submitOtp,
         login,
         logout,
+        cartChanged,
+        setCartChanged,
         host,
       }}
     >

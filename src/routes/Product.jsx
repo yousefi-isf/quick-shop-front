@@ -13,31 +13,28 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../components/Authentication';
 import _ from 'lodash';
-import pn from 'persian-number';
+import pn, { convertEnToPe } from 'persian-number';
+import noImg from '../../public/noimage.png'
 // import http
 const GET_PRODUCT_DETAILS = import.meta.env.VITE_GET_PRODUCT_DETAILS;
 const ADD_TO_CART = import.meta.env.VITE_ADD_TO_CART;
 const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
 const DELETE_ITEM_FROM_CART = import.meta.env.VITE_DELETE_ITEM_FROM_CART;
+
 export function AddToCart({ product_slug }) {
-  const { host, token } = useAuth();
+  const { host, token, setCartChanged, cartChanged } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isAddToCart, setIsAddToCart] = useState(false);
-  const [cartChanged, setCartChanged] = useState(false);
   const [cartNum, setCartNum] = useState(0);
-  async function get_user_cart() {
+  async function get_user_cart(source) {
     if (!token) {
       setLoading(false);
     }
     try {
-      // const res = await fetch(`${host}/${GET_USER_CART}`, {
-      //   headers: { "Authorization": `Bearer ${token}` },
-      //   // ...
-      // });
-
       const res = await axios.get(`${host}/${GET_USER_CART}`, {
         headers: { Authorization: `Bearer ${token}` },
+        cancelToken: source.token,
       });
       if (!res.data.data) {
         setIsAddToCart(false);
@@ -49,9 +46,11 @@ export function AddToCart({ product_slug }) {
           setCartNum(pr.quantity);
         }
       }
-
       console.log(res.data.data);
     } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Request canceled', error.message);
+      }
       console.log(error);
     } finally {
       setLoading(false);
@@ -94,7 +93,12 @@ export function AddToCart({ product_slug }) {
     }
   }
   useEffect(() => {
-    get_user_cart();
+    const source = axios.CancelToken.source();
+
+    get_user_cart(source);
+    return () => {
+      source.cancel('Component unmounted, request canceled');
+    };
   }, [cartChanged]);
 
   if (loading) {
@@ -137,7 +141,7 @@ export default function Product() {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState();
 
-  console.log(product);
+  console.log(product?.comments);
 
   async function get_product_details() {
     setLoading(true);
@@ -173,7 +177,7 @@ export default function Product() {
                 className="px-10 py-5 rounded-lg bg-base-200"
               >
                 <img
-                  src={product?.photo.path}
+                  src={product?.photo?.path ?? noImg }
                   alt="product-image"
                   className="w-96"
                 />
@@ -189,6 +193,9 @@ export default function Product() {
                   <span className="text-base-300 whitespace-nowrap">
                     {product?.name}
                   </span>
+                </div>
+                <div className="p-3 bg-accent text-accent-content w-max rounded-xl font-bold">
+                  {convertEnToPe(product.score)} امتیاز
                 </div>
               </div>
             </div>
@@ -244,7 +251,7 @@ export default function Product() {
                       </div>
                       <div className="comment-body">{com.description}</div>
                       <div className="more-details flex gap-4 text-sm opacity-50 divider divider-start">
-                        {/* <span>{com.user_id.name}</span> */}
+                        <span>{com.user_id.name}</span>
                         <span>
                           {new Intl.DateTimeFormat('fa-IR').format(
                             new Date(com.created_at),
@@ -259,7 +266,7 @@ export default function Product() {
           <aside id="left" className="block col-span-2 items-center">
             <div
               id="aside-box"
-              className="flex flex-col gap-5 bg-base-200 p-5 rounded-3xl sticky top-10"
+              className="flex flex-col gap-5 bg-base-200 p-5 rounded-3xl sticky top-32"
             >
               {product.in_stock ? (
                 <div id="stock" className="flex gap-3">

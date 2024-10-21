@@ -9,13 +9,14 @@ const GET_USER_PROFILE = import.meta.env.VITE_GET_USER_PROFILE;
 const ADD_FACTOR = import.meta.env.VITE_ADD_FACTOR;
 const GET_USER_CART = import.meta.env.VITE_GET_USER_CART;
 export default function Shipping() {
-  const { token, host } = useAuth();
+  const { token, host, setCartChanged } = useAuth();
 
   const navigate = useNavigate();
 
   const [address, setAddress] = useState('');
   const [addressErr, setAddressErr] = useState('');
   const [postalErr, setPostalErr] = useState('');
+  const [total, setTotal] = useState('');
   const [err, setErr] = useState(true);
   const [postal, setPostal] = useState('');
 
@@ -40,10 +41,11 @@ export default function Shipping() {
       if (!res.data.data) {
         navigate('/cart');
       }
+      setTotal(res.data.data.total_price ?? '');
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }
 
@@ -91,6 +93,7 @@ export default function Shipping() {
       await axios.post(`${host}/${ADD_FACTOR}`, body, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      setCartChanged((prev) => !prev);
       navigate('/profile/orders');
     } catch (error) {
       console.log(error);
@@ -160,7 +163,7 @@ export default function Shipping() {
                 هزینه ارسال :{' '}
               </h5>
               <h5 className="font-bold text-2xl text-center">
-                {helpers.toCurrency(32000000)} تومان
+                {helpers.toCurrency(45000)} تومان
               </h5>
             </div>
             <div id="price" className="flex gap-2 justify-between items-center">
@@ -168,7 +171,7 @@ export default function Shipping() {
                 مبلغ قابل پرداخت :{' '}
               </h5>
               <h5 className="font-bold text-2xl text-center">
-                {helpers.toCurrency(32000000)} تومان
+                {helpers.toCurrency(total)} تومان
               </h5>
             </div>
             <div id="add-to-card p-5" className="w-full">

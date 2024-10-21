@@ -16,7 +16,12 @@ import Orders from './routes/Orders.jsx';
 import Coins from './routes/Coins.jsx';
 import Info from './routes/Info.jsx';
 import OrderDetails from './routes/OrderDetails.jsx';
-import DefaultOrders from './routes/DefaultOrders.jsx';
+import TrackOrdersDet from './routes/admin/TrackOrdersDet.jsx';
+import TrackOrders from './routes/admin/TrackOrders.jsx';
+import ManCategories from './routes/admin/ManCategories.jsx';
+import ManProducts from './routes/admin/ManProducts.jsx';
+import ManUsers from './routes/admin/ManUsers.jsx';
+import ManProductDet from './routes/admin/ManProductDet.jsx';
 function App() {
   let { pathname } = useLocation();
   return (
@@ -30,10 +35,17 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />}>
             <Route path="orders" element={<Orders />}>
-              {/* <Route index element={<DefaultOrders />} /> */}
-              <Route path=":order_number" element={<OrderDetails />}></Route>
+              <Route path=":order_number" element={<OrderDetails />} />
             </Route>
             <Route path="coins" element={<Coins />} />
+            <Route path="track-orders" element={<TrackOrders />}>
+              <Route path=":order_number" element={<TrackOrdersDet />} />
+            </Route>
+            <Route path="manage-users" element={<ManUsers />} />
+            <Route path="manage-products" element={<ManProducts />}>
+              <Route path=":product_id" element={<ManProductDet />}></Route>
+            </Route>
+            {/* <Route path="manage-categories" element={<ManCategories />} /> */}
             <Route path="info" element={<Info />} />
           </Route>
           <Route path="/shipping" element={<Shipping />} />
